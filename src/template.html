@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recetario de Réplicas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: laboratorio casero. Lista de perfumes a la izquierda, ficha-receta fija a la derecha (hoja deslizable en celular). */
+:root {
+  --bg: #f5f4f8;
+  --surface: #ffffff;
+  --sunken: #eceaf1;
+  --ink: #1e1a29;
+  --muted: #645d73;
+  --line: #dedbe6;
+  --accent: #9a5212;
+  --accent-ink: #ffffff;
+  --accent-soft: #f6e7d6;
+  --essence: #c9822b;
+  --fixative: #7b5ca8;
+  --alcohol: #d8e1ec;
+  --alcohol-line: #aebccd;
+  --fam-F: #1f7a8c; --fam-F-bg: #e0f1f4;
+  --fam-L: #b23a6e; --fam-L-bg: #f9e3ed;
+  --fam-M: #6b6a2a; --fam-M-bg: #eeeedb;
+  --fam-O: #a2560f; --fam-O-bg: #f8e8d5;
+  --warn: #8a3b12; --warn-bg: #fbeee4;
+  --ok: #2d6a3e;
+  --shadow: 0 1px 2px rgba(30,26,41,.06), 0 8px 24px rgba(30,26,41,.06);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-data: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14111b; --surface: #1d1926; --sunken: #26212f; --ink: #ece8f4; --muted: #a59db5; --line: #322c3e;
+    --accent: #e9a35c; --accent-ink: #1d1206; --accent-soft: #3a2a1a;
+    --essence: #e0a050; --fixative: #a88ad6; --alcohol: #52627a; --alcohol-line: #6a7b93;
+    --fam-F: #6fc6d6; --fam-F-bg: #16323a; --fam-L: #ee8cb6; --fam-L-bg: #3a1b2a;
+    --fam-M: #c9c77d; --fam-M-bg: #2e2e1a; --fam-O: #f0ad66; --fam-O-bg: #3a2814;
+    --warn: #f3a37a; --warn-bg: #3a2016; --ok: #7fd197;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14111b; --surface: #1d1926; --sunken: #26212f; --ink: #ece8f4; --muted: #a59db5; --line: #322c3e;
+  --accent: #e9a35c; --accent-ink: #1d1206; --accent-soft: #3a2a1a;
+  --essence: #e0a050; --fixative: #a88ad6; --alcohol: #52627a; --alcohol-line: #6a7b93;
+  --fam-F: #6fc6d6; --fam-F-bg: #16323a; --fam-L: #ee8cb6; --fam-L-bg: #3a1b2a;
+  --fam-M: #c9c77d; --fam-M-bg: #2e2e1a; --fam-O: #f0ad66; --fam-O-bg: #3a2814;
+  --warn: #f3a37a; --warn-bg: #3a2016; --ok: #7fd197;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.3);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+button, input, select { font: inherit; color: inherit; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num, .mono { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Encabezado */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-block: 10px; }
+.brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+.brand h1 { font: 800 22px/1.1 var(--f-display); letter-spacing: -.01em; margin: 0; }
+.brand small { color: var(--muted); font-size: 13px; }
+nav.tabs { display: flex; gap: 4px; background: var(--sunken); padding: 4px; border-radius: 999px; }
+nav.tabs a { text-decoration: none; color: var(--muted); font-weight: 600; font-size: 14px; padding: 6px 14px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; }
+nav.tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.count { font-family: var(--f-data); font-size: 12px; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 0 7px; min-width: 20px; text-align: center; }
+
+main { padding-block: 20px 60px; }
+.view[hidden] { display: none !important; }
+
+/* Vista perfumes */
+.lab { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; align-items: start; }
+.finder { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.search { position: relative; }
+.search input { width: 100%; padding: 12px 14px 12px 40px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); font-size: 16px; }
+.search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.filters select { padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 14px; max-width: 100%; }
+.meta-line { color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+.meta-line button { background: none; border: 0; color: var(--accent); font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline; }
+.results { display: flex; flex-direction: column; gap: 6px; }
+.row { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; align-items: center; text-align: left; width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; cursor: pointer; }
+.row:hover { border-color: var(--muted); }
+.row[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.rank { font: 700 17px/1 var(--f-display); color: var(--ink); text-align: right; white-space: nowrap; }
+.rank i { font: 500 12px/1 var(--f-data); color: var(--muted); font-style: normal; margin-right: 1px; }
+.row .nm { min-width: 0; }
+.row .nm strong { display: block; font-weight: 600; font-size: 15.5px; overflow-wrap: anywhere; }
+.row .nm span { color: var(--muted); font-size: 13px; }
+.row .pct { text-align: right; font-family: var(--f-data); font-size: 13px; color: var(--muted); display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.row .pct b { color: var(--ink); font-size: 15px; font-weight: 500; }
+.chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.chip.F { color: var(--fam-F); background: var(--fam-F-bg); }
+.chip.L { color: var(--fam-L); background: var(--fam-L-bg); }
+.chip.M { color: var(--fam-M); background: var(--fam-M-bg); }
+.chip.O { color: var(--fam-O); background: var(--fam-O-bg); }
+.more { align-self: center; margin-top: 6px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); padding: 9px 16px; border-radius: 999px; font-weight: 600; cursor: pointer; font-size: 14px; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--warn); }
+.empty { padding: 28px 16px; text-align: center; color: var(--muted); background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r); }
+
+/* Ficha */
+.sheet { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); min-width: 0; max-height: calc(100vh - 96px); overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.sheet-in { padding: 22px; display: flex; flex-direction: column; gap: 20px; }
+.sheet .close { display: none; }
+.ficha-head { display: flex; flex-direction: column; gap: 6px; }
+.eyebrow { font: 500 12px/1.2 var(--f-data); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.ficha-head h2 { font: 800 clamp(26px, 3.4vw, 36px)/1.05 var(--f-display); letter-spacing: -.015em; margin: 0; text-wrap: balance; overflow-wrap: anywhere; }
+.ficha-head .by { font-size: 16px; color: var(--muted); }
+.ficha-head .by strong { color: var(--ink); font-weight: 600; }
+.ask { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; background: var(--accent-soft); border-radius: var(--r); padding: 10px 12px; }
+.ask span { font-size: 14px; }
+.ask strong { font-weight: 600; }
+.ask .btn { padding: 5px 12px; font-size: 13px; margin-left: auto; }
+.notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.notes div { min-width: 0; }
+.notes h4, .block h3 { margin: 0 0 4px; font: 600 12px/1.2 var(--f-body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.notes p { margin: 0; font-size: 14px; }
+.accords { display: flex; flex-wrap: wrap; gap: 6px; }
+.accords span { font-size: 12.5px; padding: 3px 9px; border: 1px solid var(--line); border-radius: 999px; }
+
+.calc { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 14px; }
+#recOut { display: flex; flex-direction: column; gap: 14px; }
+.calc h3.big { font: 700 20px/1.2 var(--f-display); margin: 0; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > label, .field > .lbl { font-size: 13px; font-weight: 600; color: var(--muted); }
+.field select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); max-width: 100%; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 14px; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.seg input { width: 92px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.slider { display: flex; align-items: center; gap: 12px; }
+.slider input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; }
+.slider output { font: 500 18px var(--f-data); min-width: 54px; text-align: right; }
+.hint { font-size: 13px; color: var(--muted); margin: 0; }
+.hint b { color: var(--ink); font-weight: 600; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); font-weight: 600; cursor: pointer; text-decoration: underline; font-size: 13px; }
+
+.formula { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 18px; align-items: stretch; }
+.tube { position: relative; display: flex; flex-direction: column; align-items: flex-start; }
+.tube .gw { position: relative; width: 62px; height: 240px; }
+.tube .glass { position: absolute; inset: 0; border: 2px solid var(--alcohol-line); border-top: 0; border-radius: 0 0 14px 14px; overflow: hidden; display: flex; flex-direction: column-reverse; background: var(--sunken); }
+.tube .rim { width: 74px; height: 6px; border: 2px solid var(--alcohol-line); border-radius: 3px; margin: 0 0 -1px -6px; }
+.tube .layer { width: 100%; flex: none; transition: height .35s ease; }
+.tube .l-e { background: var(--essence); }
+.tube .l-f { background: var(--fixative); }
+.tube .l-a { background: var(--alcohol); }
+.tube .tick { position: absolute; left: 2px; width: 10px; border-top: 1px solid var(--ink); opacity: .45; pointer-events: none; }
+.tube .tick.lg { width: 18px; opacity: .75; }
+.tube .tlab { position: absolute; left: calc(100% + 6px); transform: translateY(50%); font: 10px/1 var(--f-data); color: var(--muted); white-space: nowrap; }
+.tube figcaption { font: 11px/1.3 var(--f-data); color: var(--muted); margin-top: 6px; text-align: center; }
+.table-wrap { overflow-x: auto; min-width: 0; }
+table.rec { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.rec th { text-align: left; font: 600 11.5px/1.2 var(--f-body); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 0 8px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.rec td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.rec td.n, table.rec th.n { text-align: right; font-family: var(--f-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.rec tr.total td { font-weight: 600; border-bottom: 0; }
+.ing { display: flex; gap: 8px; align-items: flex-start; }
+.dot { width: 12px; height: 12px; border-radius: 3px; flex: none; margin-top: 4px; border: 1px solid var(--alcohol-line); }
+.dot.e { background: var(--essence); border-color: var(--essence); }
+.dot.f { background: var(--fixative); border-color: var(--fixative); }
+.dot.a { background: var(--alcohol); }
+.ing small { display: block; color: var(--muted); font-size: 12.5px; }
+.big-ml { font-size: 17px; font-weight: 500; color: var(--ink); }
+
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 8px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; font-size: 14.5px; }
+ol.steps li::before { content: counter(s); font: 600 13px/26px var(--f-data); width: 26px; height: 26px; text-align: center; border-radius: 50%; background: var(--sunken); color: var(--ink); }
+ol.steps li b { font-weight: 600; }
+.add { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--sunken); border-radius: var(--r); padding: 12px; }
+.qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.qty button { border: 0; background: none; width: 34px; height: 34px; cursor: pointer; font-size: 18px; border-radius: 999px; }
+.qty input { width: 44px; text-align: center; border: 0; background: none; font-family: var(--f-data); -moz-appearance: textfield; }
+.qty input::-webkit-outer-spin-button, .qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.warn { background: var(--warn-bg); color: var(--warn); border-radius: var(--r); padding: 10px 12px; font-size: 13.5px; }
+.warn b { font-weight: 600; }
+
+/* Lista */
+.cols { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.panel h2 { font: 700 22px/1.2 var(--f-display); margin: 0; }
+.panel h3 { font: 600 13px/1.2 var(--f-body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 6px 0 0; }
+.banner { background: var(--accent-soft); border-radius: var(--r); padding: 10px 12px; font-size: 14px; }
+.items { display: flex; flex-direction: column; gap: 8px; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px 12px; align-items: center; border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; }
+.item .nm strong { display: block; font-weight: 600; overflow-wrap: anywhere; }
+.item .nm span { font-size: 13px; color: var(--muted); }
+.item .ctrl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.item .ctrl .x { margin-left: auto; }
+.item select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 13px; }
+.x { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 20px; width: 32px; height: 32px; border-radius: 50%; }
+.x:hover { background: var(--sunken); color: var(--warn); }
+ul.buy { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+ul.buy li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+ul.buy li:last-child { border-bottom: 0; }
+ul.buy li .n { font-family: var(--f-data); text-align: right; white-space: nowrap; }
+ul.buy li small { grid-column: 1 / -1; color: var(--muted); font-size: 12.5px; }
+.tools { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.tools label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 7px 0; cursor: pointer; font-size: 14.5px; }
+.tools input { width: 18px; height: 18px; accent-color: var(--accent); margin-top: 2px; }
+.tools small { display: block; color: var(--muted); font-size: 12.5px; }
+.tools input:checked + span { color: var(--muted); text-decoration: line-through; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+textarea.copyfall { width: 100%; min-height: 160px; font: 12.5px/1.45 var(--f-data); border: 1px solid var(--line); border-radius: 8px; background: var(--sunken); padding: 10px; }
+
+/* Guía */
+.guide { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; align-items: start; }
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 80px); display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.toc a { color: var(--muted); text-decoration: none; padding: 5px 10px; border-radius: 6px; }
+.toc a:hover { background: var(--sunken); color: var(--ink); }
+.prose { min-width: 0; max-width: 760px; display: flex; flex-direction: column; gap: 34px; }
+.prose section { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 90px; }
+.prose h2 { font: 800 26px/1.15 var(--f-display); letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.prose p { margin: 0; max-width: 68ch; }
+.prose ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.prose table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.prose th, .prose td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.prose th { font: 600 12px/1.2 var(--f-body); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.prose td.n { font-family: var(--f-data); white-space: nowrap; }
+.prob { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.prob div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; }
+.prob b { display: block; font-weight: 600; margin-bottom: 2px; }
+.src { font-size: 14px; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--surface); padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 40; max-width: calc(100% - 32px); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 960px) {
+  .lab, .cols { grid-template-columns: minmax(0, 1fr); }
+  .guide { grid-template-columns: minmax(0, 1fr); }
+  .toc { position: static; flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .toc a { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; font-size: 13px; }
+  .sheet { display: none; position: fixed; inset: 0; z-index: 30; max-height: none; border-radius: 0; border: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+  .sheet.open { display: block; }
+  .sheet .close { display: inline-flex; align-self: flex-start; }
+  .sheet-in { padding: 16px; }
+  body.locked { overflow: hidden; }
+}
+@media (max-width: 520px) {
+  .brand small { display: none; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+  .formula { grid-template-columns: 84px minmax(0, 1fr); gap: 10px; }
+  .tube .gw { width: 46px; height: 200px; }
+  .tube .rim { width: 58px; }
+  .g { display: none; }
+  table.rec td, table.rec th { padding-left: 5px; padding-right: 5px; }
+  .row { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><h1>Recetario de Réplicas</h1><small>esencia · fijador · alcohol, en ml</small></div>
+    <nav class="tabs" aria-label="Secciones">
+      <a href="#perfumes" data-view="perfumes">Perfumes</a>
+      <a href="#lista" data-view="lista">Mi lista <span class="count num" id="listCount">0</span></a>
+      <a href="#guia" data-view="guia">Guía</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- PERFUMES -->
+  <section class="view" id="v-perfumes" aria-label="Perfumes">
+    <div class="lab">
+      <div class="finder">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Buscá por perfume, marca o nota (ej. sauvage, dior, vainilla)" autocomplete="off" aria-label="Buscar perfume">
+        </div>
+        <div class="filters">
+          <select id="fScope" aria-label="Alcance">
+            <option value="300">Top 300</option>
+            <option value="1000">Top 1000</option>
+          </select>
+          <select id="fGen" aria-label="Género">
+            <option value="">Todos los géneros</option>
+            <option value="M">Mujer</option>
+            <option value="H">Hombre</option>
+            <option value="U">Unisex</option>
+          </select>
+          <select id="fFam" aria-label="Familia">
+            <option value="">Todas las familias</option>
+            <option value="F">Fresco / cítrico</option>
+            <option value="L">Floral / frutal</option>
+            <option value="M">Amaderado</option>
+            <option value="O">Oriental / dulce</option>
+          </select>
+          <select id="fSort" aria-label="Orden">
+            <option value="rank">Más famosos primero</option>
+            <option value="name">Nombre A–Z</option>
+            <option value="year">Más nuevos primero</option>
+          </select>
+        </div>
+        <div class="meta-line" id="metaLine"></div>
+        <div class="results" id="results"></div>
+      </div>
+      <aside class="sheet" id="sheet" aria-label="Receta del perfume"><div class="sheet-in" id="detail"></div></aside>
+    </div>
+  </section>
+
+  <!-- LISTA -->
+  <section class="view" id="v-lista" aria-label="Mi lista de compras" hidden>
+    <div class="cols">
+      <div class="panel">
+        <h2>Lo que voy a preparar</h2>
+        <div id="listBanner"></div>
+        <div class="field">
+          <label for="fixList">Fijador que uso</label>
+          <select id="fixList" class="filters-like"></select>
+        </div>
+        <div class="items" id="items"></div>
+      </div>
+      <div class="panel">
+        <h2>Lo que tengo que comprar</h2>
+        <div id="buy"></div>
+        <div class="actions">
+          <button class="btn primary" id="copyList" type="button">Copiar lista</button>
+          <button class="btn danger" id="clearList" type="button">Vaciar lista</button>
+        </div>
+        <div id="copyFallback"></div>
+        <h3>Instrumentos (se compran una sola vez)</h3>
+        <ul class="tools" id="tools"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- GUIA -->
+  <section class="view" id="v-guia" aria-label="Guía" hidden>
+    <div class="guide">
+      <nav class="toc" aria-label="Índice de la guía">
+        <a href="#guia" data-go="g-como">Cómo funciona</a>
+        <a href="#guia" data-go="g-conc">Concentraciones</a>
+        <a href="#guia" data-go="g-fam">Ajuste por familia</a>
+        <a href="#guia" data-go="g-inst">Instrumentos</a>
+        <a href="#guia" data-go="g-pasos">Paso a paso</a>
+        <a href="#guia" data-go="g-prob">Problemas comunes</a>
+        <a href="#guia" data-go="g-reg">Llevar registro</a>
+        <a href="#guia" data-go="g-seg">Seguridad</a>
+        <a href="#guia" data-go="g-fuentes">Fuentes y GitHub</a>
+      </nav>
+      <div class="prose">
+        <section id="g-como">
+          <h2>Cómo funciona una réplica</h2>
+          <p>La fórmula química de cada perfume original es secreta. Las tiendas venden <b>esencias "tipo"</b> o "inspiradas en": aceites que un proveedor ya armó para oler como el original. Tu trabajo no es inventar la fórmula, es <b>diluir bien esa esencia</b>: la cantidad justa de esencia, un poco de fijador, alcohol de perfumería y tiempo de reposo.</p>
+          <p>Que tu réplica se parezca al original depende sobre todo de la calidad de la esencia. Una buena esencia mal diluida huele a alcohol o empalaga; bien diluida y reposada, se acerca mucho.</p>
+        </section>
+        <section id="g-conc">
+          <h2>Concentraciones</h2>
+          <p>El porcentaje es cuánta esencia hay en el total. Para 100 ml al 30 % van 30 ml de esencia.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Tipo</th><th>Esencia</th><th>Qué esperar</th></tr></thead>
+            <tbody>
+              <tr><td>Eau de Toilette (EDT)</td><td class="n">5–15 %</td><td>Ligero, dura pocas horas. En la página: "Suave", base 15 %.</td></tr>
+              <tr><td>Eau de Parfum (EDP)</td><td class="n">15–20 %</td><td>Lo normal en perfumes de marca.</td></tr>
+              <tr><td>Réplica estándar de tienda</td><td class="n">30 %</td><td>1 onza de esencia por frasco de 100 ml. Base de la página.</td></tr>
+              <tr><td>Extracto / "Plus"</td><td class="n">20–45 %</td><td>Más duración y estela. En la página: "Intenso", base 38 %, tope 45 %.</td></tr>
+            </tbody>
+          </table></div>
+          <p class="hint">Las réplicas llevan más esencia que un EDP de marca porque las esencias de tienda suelen ser menos concentradas que el concentrado original.</p>
+        </section>
+        <section id="g-fam">
+          <h2>Ajuste por familia</h2>
+          <p>Cada perfume tiene una familia estimada a partir de sus acordes en Fragrantica. La familia mueve el porcentaje recomendado y los días de reposo. Es una regla práctica: si tu tienda o tu nariz dicen otra cosa, movés el porcentaje a mano en la receta.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Familia</th><th>Ajuste</th><th>Reposo</th><th>Por qué</th></tr></thead>
+            <tbody id="famTable"></tbody>
+          </table></div>
+        </section>
+        <section id="g-inst">
+          <h2>Instrumentos</h2>
+          <p>Con esto medís exacto y repetís el mismo resultado cada vez.</p>
+          <ul id="instList"></ul>
+        </section>
+        <section id="g-pasos">
+          <h2>Paso a paso</h2>
+          <ol class="steps" id="guideSteps"></ol>
+        </section>
+        <section id="g-prob">
+          <h2>Problemas comunes</h2>
+          <div class="prob">
+            <div><b>Huele mucho a alcohol al rociar</b>Le falta reposo. Esperá una o dos semanas más. Si sigue igual, en el próximo lote subí 5 puntos la esencia.</div>
+            <div><b>No dura en la piel</b>Subí la esencia 5 puntos (sin pasar de 45 %). Con fijador de tienda podés probar 8–10 %. Rociá también en la ropa, después de probar en un lugar que no se vea.</div>
+            <div><b>Quedó turbio o con grumitos</b>Dejalo 24–48 horas en el refrigerador y filtralo con filtro de café mojado antes con un poco de alcohol. No le pongas agua: el agua enturbia.</div>
+            <div><b>Empalaga o marea</b>Bajá 5 puntos la esencia. Pasa sobre todo con los dulces y con vainilla.</div>
+            <div><b>Se oscureció</b>Es normal en perfumes con vainilla o canela. Guardalo a oscuras y lejos del calor.</div>
+            <div><b>No se parece al original</b>Casi siempre es la esencia, no la receta. Compará en tira de papel junto al original a los 10 minutos, 1 hora y 4 horas, y probá otra calidad o proveedor.</div>
+          </div>
+        </section>
+        <section id="g-reg">
+          <h2>Llevar registro de tus pruebas</h2>
+          <p>Ponele a cada frasco una etiqueta con un código, el porcentaje, la fecha y la tienda. Ejemplo: <span class="mono">SAUV-02 · 32 % · 17/11/2026 · tienda X</span>. Olé en tira de papel el día 1, el día 7 y el día del reposo final, y anotá qué cambió. Cuando una versión te guste, repetís exactamente esos números.</p>
+        </section>
+        <section id="g-seg">
+          <h2>Seguridad</h2>
+          <ul>
+            <li><b>Solo alcohol etílico de perfumería</b> (96°). Nunca alcohol isopropílico ni alcohol de farmacia con alcanfor: irritan la piel y huelen fuerte.</li>
+            <li><b>El alcohol se prende fuego.</b> Trabajá lejos de la estufa, velas y cigarros, con la ventana abierta.</li>
+            <li><b>La esencia pura irrita.</b> Usá guantes y no la toques con los dedos.</li>
+            <li><b>Prueba de piel:</b> antes de usar o regalar, poné un poco en el antebrazo y esperá 24 horas.</li>
+            <li><b>No pases de 45 % de esencia.</b> Las esencias tienen límites de uso seguro (normas IFRA).</li>
+            <li>Guardá todo fuera del alcance de niños, bien tapado y etiquetado.</li>
+          </ul>
+        </section>
+        <section id="g-fuentes">
+          <h2>Fuentes y repositorios de GitHub</h2>
+          <p><b>El top de perfumes</b> sale de un conjunto de datos público de Fragrantica con 24.063 perfumes y datos hasta 2024, ordenado por cantidad de votos: <a href="https://github.com/lyudmil-apostolov/Fragrance-project/blob/main/data/fra_cleaned.csv" target="_blank" rel="noopener">copia en GitHub</a>. Cada ficha tiene el link a su página en Fragrantica para que compruebes las notas.</p>
+          <p><b>Repositorios con más de 1000 estrellas sobre crear perfumes: no existe ninguno</b> (búsqueda del 17/11/2026). Los únicos que pasan de 1000 son coincidencias de palabra, por ejemplo <span class="mono">perfume.js</span>, que mide la velocidad de páginas web. Los más útiles del tema son estos:</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Repositorio</th><th>★</th><th>Para qué sirve</th></tr></thead>
+            <tbody>
+              <tr><td><a href="https://github.com/jbparfum/parfumvault" target="_blank" rel="noopener">jbparfum/parfumvault</a></td><td class="n">73</td><td><b>Herramienta.</b> Gestor de fórmulas para perfumistas: ingredientes, porcentajes, límites IFRA. El más útil si un día querés formular desde cero.</td></tr>
+              <tr><td><a href="https://github.com/kellypeng/scentmate_rec" target="_blank" rel="noopener">kellypeng/scentmate_rec</a></td><td class="n">117</td><td>Información. Recomendador de perfumes con aprendizaje automático.</td></tr>
+              <tr><td><a href="https://github.com/pyrfume/pyrfume-data" target="_blank" rel="noopener">pyrfume/pyrfume-data</a></td><td class="n">105</td><td>Información. Datos científicos de moléculas y cómo huelen.</td></tr>
+              <tr><td><a href="https://github.com/5KG-UCAS/CosmeticsKG" target="_blank" rel="noopener">5KG-UCAS/CosmeticsKG</a></td><td class="n">95</td><td>Información. Mapa de conocimiento de labiales y perfumes (en chino).</td></tr>
+              <tr><td><a href="https://github.com/pyrfume/pyrfume" target="_blank" rel="noopener">pyrfume/pyrfume</a></td><td class="n">77</td><td>Herramienta. Librería para trabajar con datos de olfato.</td></tr>
+              <tr><td><a href="https://github.com/FragDB/fragrance-database" target="_blank" rel="noopener">FragDB/fragrance-database</a></td><td class="n">72</td><td>Información. 134 mil perfumes; gratis solo una muestra de 10.</td></tr>
+              <tr><td><a href="https://github.com/ARY2260/openpom" target="_blank" rel="noopener">ARY2260/openpom</a></td><td class="n">68</td><td>Herramienta. Predice el olor de una molécula ("mapa de olores").</td></tr>
+              <tr><td><a href="https://github.com/osmoai/taxonomy" target="_blank" rel="noopener">osmoai/taxonomy</a></td><td class="n">31</td><td>Información. Vocabulario para describir olores.</td></tr>
+            </tbody>
+          </table></div>
+          <p><b>Proporciones, reposo y filtrado:</b></p>
+          <ul class="src">
+            <li><a href="https://aromaniaksv.com/blog/esencias-de-perfume-el-salvador-guia-compra-74bfa463" target="_blank" rel="noopener">Aromaniak</a> (tienda): 30 ml de esencia por 100 ml, 45 ml en versión Plus, reposo de 7 a 15 días.</li>
+            <li><a href="https://granvelada.com/blog/recetas-de-perfume/" target="_blank" rel="noopener">Gran Velada</a> (proveedor): 30 % de esencia, 0,5 % de dimeticona copoliol como fijador, alcohol 96°, unos 10 días de reposo.</li>
+            <li><a href="https://www.scento.com/blog/perfume-concentrations-explained-from-edt-to-extrait" target="_blank" rel="noopener">Scento</a> y <a href="https://intercom.help/amouage/en/articles/5655709-the-difference-between-eau-de-toilette-eau-de-parfum-and-extrait-de-parfum" target="_blank" rel="noopener">Amouage</a>: rangos de EDT, EDP y extracto.</li>
+            <li><a href="https://fragranceforte.co.uk/blogs/news/perfume-maceration-what-it-is-why-it-matters-and-how-to-do-it-right" target="_blank" rel="noopener">Fragrance Forte</a>: reposo de 2–3 semanas, enfriar y filtrar si se enturbia; congelar no acelera nada.</li>
+            <li><a href="https://basenotes.com/threads/filtering-perfume-concentrate.466413/" target="_blank" rel="noopener">Basenotes</a> (foro): filtro de café mojado con alcohol, reposos de 3 a 6 semanas.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const DATA = /*__DATA__*/[];
+
+const FAM = {
+  F: { label: 'Fresco / cítrico', adj: 5, days: 14, why: 'Las notas cítricas, acuáticas y verdes se evaporan rápido. Llevan 5 puntos más de esencia para que duren.' },
+  L: { label: 'Floral / frutal', adj: 0, days: 21, why: 'Equilibrados. Van con el porcentaje base.' },
+  M: { label: 'Amaderado', adj: 0, days: 21, why: 'Maderas, musgo y especias frescas. Porcentaje base; mejoran con reposo.' },
+  O: { label: 'Oriental / dulce', adj: -5, days: 28, why: 'Vainilla, ámbar, tabaco y dulces son densos y empalagan si se cargan. Llevan 5 puntos menos y más reposo.' }
+};
+const LEVELS = {
+  suave: { label: 'Suave (EDT)', base: 15 },
+  estandar: { label: 'Réplica estándar', base: 30 },
+  plus: { label: 'Intenso (Plus)', base: 38 }
+};
+const FIXES = {
+  tienda: { label: 'Fijador de tienda', pct: 5, dens: 1.0, note: 'Si la etiqueta de tu fijador indica otra dosis, usá la de la etiqueta.' },
+  dpg: { label: 'DPG (dipropilenglicol)', pct: 5, dens: 1.02, note: 'Sin olor; hace que la salida se evapore más lento.' },
+  dimet: { label: 'Dimeticona copoliol', pct: 0.5, dens: 1.03, note: 'Se usa muy poquito: medila en gotas.' },
+  ninguno: { label: 'Mi alcohol ya trae fijador', pct: 0, dens: 1.0, note: 'Algunas tiendas venden "alcohol perfumero con fijador": no agregues más.' }
+};
+const DENS_E = 0.97, DENS_A = 0.81, DROPS_ML = 20, OZ_ML = 29.57;
+const GEN = { M: 'Mujer', H: 'Hombre', U: 'Unisex' };
+const SIZES = [10, 30, 50, 100];
+const TOOLS = [
+  ['probeta', 'Probeta graduada de vidrio de 100 ml', 'Para medir el alcohol y completar el total exacto.'],
+  ['jeringas', 'Jeringas sin aguja de 5 y 10 ml', 'Para medir la esencia y el fijador al medio mililitro. Una por esencia.'],
+  ['pipetas', 'Pipetas Pasteur plásticas de 3 ml', 'Para gotas y ajustes finos. Una por esencia, así no se mezclan olores.'],
+  ['beaker', 'Vaso de precipitado de vidrio de 100–250 ml', 'Para mezclar.'],
+  ['embudo', 'Embudo chico de vidrio o acero', 'Para pasar la mezcla al frasco sin derramar.'],
+  ['ambar', 'Frascos de vidrio ámbar con tapa', 'Para el reposo a oscuras. Uno por perfume, del tamaño del lote.'],
+  ['filtros', 'Filtros de café de papel', 'Para filtrar después del reposo.'],
+  ['tiras', 'Tiras de papel secante (mouillettes)', 'Para oler y comparar con el original sin gastar.'],
+  ['guantes', 'Guantes de nitrilo', 'La esencia pura irrita la piel.'],
+  ['etiquetas', 'Etiquetas y marcador', 'Código, porcentaje, fecha y tienda en cada frasco.'],
+  ['balanza', 'Balanza digital de 0,01 g (opcional)', 'Para pesar en lugar de medir volumen. Es lo más exacto.'],
+  ['cuaderno', 'Cuaderno de pruebas', 'Para anotar cada versión y repetir la que te guste.']
+];
+
+const fold = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nf1 = new Intl.NumberFormat('es', { maximumFractionDigits: 1 });
+const nf0 = new Intl.NumberFormat('es', { maximumFractionDigits: 0 });
+const ml = v => nf1.format(v);
+const $ = (s, el = document) => el.querySelector(s);
+const IDX = DATA.map(p => fold([p.n, p.b, p.u.replace(/[-_/]/g, ' '), p.a.join(' '), p.t.join(' '), p.m.join(' '), p.s.join(' ')].join(' ')));
+const BY_R = new Map(DATA.map(p => [p.r, p]));
+
+function recPct(p, lvl) { return Math.max(8, Math.min(45, LEVELS[lvl].base + FAM[p.f].adj)); }
+function recipe(total, pct, fixKey) {
+  const t10 = Math.round(total * 10);
+  const step = total >= 30 ? 5 : 1;
+  const e10 = Math.round(t10 * pct / 100 / step) * step;
+  const fp = FIXES[fixKey].pct;
+  const f10 = fp > 0 ? Math.max(1, Math.round(t10 * fp / 100)) : 0;
+  return { e: e10 / 10, f: f10 / 10, a: (t10 - e10 - f10) / 10, t: t10 / 10 };
+}
+
+/* ---------- estado y guardado ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sin guardado */ } }
+};
+const savedSettings = store.get('recetario.ajustes.v1', {});
+const savedList = store.get('recetario.lista.v1', null);
+const S = {
+  q: '', gen: '', fam: '', scope: 300, sort: 'rank', shown: 50,
+  sel: 10, size: savedSettings.size || 100, lvl: 'estandar', pct: null, qty: 1,
+  fix: FIXES[savedSettings.fix] ? savedSettings.fix : 'tienda',
+  list: Array.isArray(savedList) ? savedList.filter(it => BY_R.has(it.r)) : [
+    { r: 10, ml: 100, n: 2, lvl: 'estandar' }, { r: 30, ml: 100, n: 1, lvl: 'estandar' }, { r: 16, ml: 50, n: 1, lvl: 'estandar' }
+  ],
+  example: !Array.isArray(savedList),
+  owned: store.get('recetario.instrumentos.v1', {}),
+  confirmClear: false
+};
+const saveSettings = () => store.set('recetario.ajustes.v1', { size: S.size, fix: S.fix });
+const saveList = () => { if (!S.example) store.set('recetario.lista.v1', S.list); };
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 1800);
+}
+async function copyText(text, fallbackHost) {
+  try { await navigator.clipboard.writeText(text); toast('Copiado'); return true; }
+  catch (e) {
+    if (fallbackHost) {
+      fallbackHost.innerHTML = '<p class="hint">Tu navegador no dejó copiar. Seleccioná el texto y copialo:</p><textarea class="copyfall" readonly></textarea>';
+      const ta = $('textarea', fallbackHost); ta.value = text; ta.focus(); ta.select();
+    } else toast('No se pudo copiar');
+    return false;
+  }
+}
+
+/* ---------- lista de perfumes ---------- */
+function filtered() {
+  const words = fold(S.q).split(/\s+/).filter(Boolean);
+  const match = (p, i) => (!S.gen || p.g === S.gen) && (!S.fam || p.f === S.fam) && words.every(w => IDX[i].includes(w));
+  const inScope = [], outScope = [];
+  DATA.forEach((p, i) => { if (match(p, i)) (p.r <= S.scope ? inScope : outScope).push(p); });
+  const cmp = { rank: (a, b) => a.r - b.r, name: (a, b) => a.n.localeCompare(b.n, 'es'), year: (a, b) => (b.y || 0) - (a.y || 0) || a.r - b.r }[S.sort];
+  inScope.sort(cmp);
+  return { list: inScope, extra: outScope.length };
+}
+function renderResults() {
+  const { list, extra } = filtered();
+  const box = $('#results');
+  const meta = [`<span><b>${nf0.format(list.length)}</b> perfume${list.length === 1 ? '' : 's'}</span>`];
+  if (extra && S.scope === 300) meta.push(`<span>${nf0.format(extra)} más fuera del top 300 · <button type="button" id="goAll">ver en top 1000</button></span>`);
+  meta.push('<span>Fuente: votos en Fragrantica, datos hasta 2024</span>');
+  $('#metaLine').innerHTML = meta.join('');
+  if (!list.length) {
+    box.innerHTML = extra && S.scope === 300
+      ? `<div class="empty">Está fuera del top 300. <button type="button" class="btn" id="goAll2">Ver ${extra} resultado${extra === 1 ? '' : 's'} en el top 1000</button></div>`
+      : `<div class="empty">No hay perfumes con esa búsqueda. Probá con el nombre corto (ej. "eros"), con la marca o con una nota (ej. "vainilla"). Si no está, usá uno de la misma familia como guía.</div>`;
+    return;
+  }
+  box.innerHTML = list.slice(0, S.shown).map(p => {
+    const pct = recPct(p, 'estandar');
+    return `<button type="button" class="row" data-r="${p.r}" aria-pressed="${p.r === S.sel}">
+      <span class="rank"><i>#</i>${p.r}</span>
+      <span class="nm"><strong>${esc(p.n)}</strong><span>${esc(p.b)} · ${p.y || 's/año'} · ${GEN[p.g]}</span></span>
+      <span class="pct"><b>${pct} %</b><span class="chip ${p.f}">${FAM[p.f].label.split(' /')[0]}</span></span>
+    </button>`;
+  }).join('') + (list.length > S.shown ? `<button type="button" class="btn more" id="more">Mostrar ${Math.min(50, list.length - S.shown)} más</button>` : '');
+}
+
+/* ---------- ficha y receta ---------- */
+function tubeTicks(total) {
+  let html = '';
+  for (let i = 1; i < 10; i++) {
+    const lg = i % 5 === 0;
+    html += `<div class="tick${lg ? ' lg' : ''}" style="bottom:${i * 10}%"></div>`;
+  }
+  [0.5, 1].forEach(f => { html += `<span class="tlab" style="bottom:${f * 100}%">${ml(total * f)}</span>`; });
+  return html;
+}
+function renderDetail() { $('#detail').innerHTML = detailHTML(); }
+function refreshRecipe() {
+  const tmp = document.createElement('div'); tmp.innerHTML = detailHTML();
+  ['recOut', 'pctHint'].forEach(id => { const a = document.getElementById(id), b = tmp.querySelector('#' + id); if (a && b) a.innerHTML = b.innerHTML; });
+}
+function detailHTML() {
+  const p = BY_R.get(S.sel);
+  if (!p) return '<div class="empty">Elegí un perfume de la lista para ver su receta.</div>';
+  const rec = recPct(p, S.lvl);
+  const pct = S.pct ?? rec;
+  const r = recipe(S.size, pct, S.fix);
+  const fx = FIXES[S.fix];
+  const fam = FAM[p.f];
+  const days = fam.days;
+  const ask = `Esencia tipo ${p.n} – ${p.b}`;
+  const custom = !SIZES.includes(S.size);
+  return `
+    <button type="button" class="btn ghost close" id="closeSheet">← Volver a la lista</button>
+    <div class="ficha-head">
+      <div class="eyebrow"><span>#${p.r} de ${p.r <= 300 ? 'top 300' : 'top 1000'}</span><span>${nf0.format(p.v)} votos${p.p ? ` · ${nf1.format(p.p)}/5` : ''}</span><span class="chip ${p.f}">${fam.label}</span></div>
+      <h2>${esc(p.n)}</h2>
+      <div class="by"><strong>${esc(p.b)}</strong> · ${p.y || 'año sin dato'} · ${GEN[p.g]} · <a href="https://www.fragrantica.com/perfume/${esc(p.u)}" target="_blank" rel="noopener">ver en Fragrantica ↗</a></div>
+    </div>
+    <div class="ask"><span>Pedí en la tienda: <strong>${esc(ask)}</strong></span><button type="button" class="btn" id="copyAsk">Copiar</button></div>
+    <div class="notes">
+      <div><h4>Salida</h4><p>${esc(p.t.join(', ') || '—')}</p></div>
+      <div><h4>Corazón</h4><p>${esc(p.m.join(', ') || '—')}</p></div>
+      <div><h4>Fondo</h4><p>${esc(p.s.join(', ') || '—')}</p></div>
+    </div>
+    <div class="accords" aria-label="Acordes principales">${p.a.map(a => `<span>${esc(a)}</span>`).join('')}</div>
+
+    <div class="calc">
+      <h3 class="big">Receta</h3>
+      <div class="field"><span class="lbl">Tamaño del frasco</span>
+        <div class="seg" role="group" aria-label="Tamaño del frasco">
+          ${SIZES.map(s => `<button type="button" data-size="${s}" aria-pressed="${S.size === s}">${s} ml</button>`).join('')}
+          <input id="sizeCustom" type="number" min="5" max="1000" step="1" inputmode="numeric" placeholder="otro" aria-label="Otro tamaño en ml" value="${custom ? S.size : ''}">
+        </div>
+      </div>
+      <div class="field"><span class="lbl">Intensidad</span>
+        <div class="seg" role="group" aria-label="Intensidad">
+          ${Object.entries(LEVELS).map(([k, v]) => `<button type="button" data-lvl="${k}" aria-pressed="${S.lvl === k}">${v.label}</button>`).join('')}
+        </div>
+      </div>
+      <div class="field"><label for="fixSel">Fijador</label>
+        <select id="fixSel">
+          ${Object.entries(FIXES).map(([k, v]) => `<option value="${k}"${S.fix === k ? ' selected' : ''}>${v.label} (${nf1.format(v.pct)} %)</option>`).join('')}
+        </select>
+        <p class="hint">${esc(fx.note)}</p>
+      </div>
+      <div class="field"><label for="pctRange">Esencia</label>
+        <div class="slider"><input type="range" id="pctRange" min="8" max="45" step="1" value="${pct}"><output for="pctRange" id="pctOut">${pct} %</output></div>
+        <p class="hint" id="pctHint">Recomendado para este perfume: <b>${rec} %</b> (${LEVELS[S.lvl].label.toLowerCase()} ${LEVELS[S.lvl].base} %${fam.adj ? `, ${fam.adj > 0 ? '+' : '−'}${Math.abs(fam.adj)} por ser ${fam.label.toLowerCase()}` : ''}). ${S.pct !== null && S.pct !== rec ? '<button type="button" class="linkbtn" id="resetPct">Volver al recomendado</button>' : ''}</p>
+      </div>
+
+      <div id="recOut"><div class="formula">
+        <figure class="tube" role="img" aria-label="Probeta: ${ml(r.e)} ml de esencia abajo, ${ml(r.f)} ml de fijador, ${ml(r.a)} ml de alcohol arriba" style="margin:0">
+          <div class="rim"></div>
+          <div class="gw">
+            <div class="glass">
+              <div class="layer l-e" style="height:${r.e / r.t * 100}%"></div>
+              <div class="layer l-f" style="height:${r.f / r.t * 100}%"></div>
+              <div class="layer l-a" style="height:${r.a / r.t * 100}%"></div>
+            </div>
+            ${tubeTicks(r.t)}
+          </div>
+          <figcaption>${ml(r.t)} ml<br>en orden de vertido</figcaption>
+        </figure>
+        <div class="table-wrap">
+          <table class="rec">
+            <thead><tr><th>Ingrediente</th><th class="n">ml</th><th class="n">gotas</th><th class="n g">gramos*</th></tr></thead>
+            <tbody>
+              <tr><td><div class="ing"><span class="dot e"></span><span>1. Esencia<small>${pct} % · ${esc(p.n)}</small></span></div></td><td class="n big-ml">${ml(r.e)}</td><td class="n">${nf0.format(r.e * DROPS_ML)}</td><td class="n g">${ml(r.e * DENS_E)}</td></tr>
+              <tr><td><div class="ing"><span class="dot f"></span><span>2. Fijador<small>${esc(fx.label)}</small></span></div></td><td class="n big-ml">${ml(r.f)}</td><td class="n">${r.f ? nf0.format(r.f * DROPS_ML) : '—'}</td><td class="n g">${r.f ? ml(r.f * fx.dens) : '—'}</td></tr>
+              <tr><td><div class="ing"><span class="dot a"></span><span>3. Alcohol de perfumería<small>completar hasta ${ml(r.t)} ml</small></span></div></td><td class="n big-ml">${ml(r.a)}</td><td class="n">—</td><td class="n g">${ml(r.a * DENS_A)}</td></tr>
+              <tr class="total"><td>Total</td><td class="n">${ml(r.t)}</td><td></td><td class="n g">${ml(r.e * DENS_E + r.f * fx.dens + r.a * DENS_A)}</td></tr>
+            </tbody>
+          </table>
+          <p class="hint" style="margin-top:8px"><span class="g">* Gramos aproximados, por si usás balanza. </span>1 ml ≈ 20 gotas de pipeta.</p>
+        </div>
+      </div>
+
+      <p class="hint"><b>Por qué ${rec} %:</b> ${esc(fam.why)}</p>
+
+      <div class="block"><h3>Orden de preparación</h3>
+        <ol class="steps">${steps(r, days, pct, p).map(s => `<li><span>${s}</span></li>`).join('')}</ol>
+      </div></div>
+
+      <div class="add">
+        <span class="lbl" style="font-weight:600;font-size:14px">Frascos:</span>
+        <span class="qty"><button type="button" data-q="-1" aria-label="Uno menos">−</button><input id="qty" type="number" min="1" max="99" value="${S.qty}" aria-label="Cantidad de frascos"><button type="button" data-q="1" aria-label="Uno más">+</button></span>
+        <button type="button" class="btn primary" id="addList">Agregar a mi lista</button>
+      </div>
+      <div class="warn"><b>Antes de usarlo:</b> probá en el antebrazo y esperá 24 h. Solo alcohol etílico de perfumería, nunca isopropílico. El alcohol se prende fuego.</div>
+    </div>`;
+}
+function steps(r, days, pct, p) {
+  return [
+    `<b>Guantes puestos y todo limpio y seco.</b> Una jeringa o pipeta solo para esta esencia.`,
+    `<b>Esencia:</b> medí <b class="num">${ml(r.e)} ml</b> y ponela en el frasco ámbar. Va primero porque es lo que más importa que quede exacto.`,
+    r.f ? `<b>Fijador:</b> agregá <b class="num">${ml(r.f)} ml</b>${r.f < 2 ? ` (unas ${nf0.format(r.f * DROPS_ML)} gotas)` : ''}.` : `<b>Fijador:</b> no lleva, porque tu alcohol ya lo trae.`,
+    `<b>Alcohol:</b> completá hasta <b class="num">${ml(r.t)} ml</b> (son ${ml(r.a)} ml). Pasalo por la misma probeta o jeringa para arrastrar lo que quedó de esencia.`,
+    `<b>Tapá y agitá suave</b> un minuto, sin hacer espuma.`,
+    `<b>Reposo:</b> <b class="num">${days} días</b> en un lugar oscuro y fresco. Agitá suave cada 2 o 3 días. Mínimo 10 días si tenés apuro.`,
+    `<b>Frío:</b> 24 a 48 horas en el refrigerador (no en el congelador).`,
+    `<b>Filtrá</b> con filtro de café mojado antes con un poquito de alcohol, directo al atomizador.`,
+    `<b>Etiquetá</b> con código, ${pct} %, fecha y tienda.`
+  ];
+}
+
+/* ---------- lista de compras ---------- */
+function totals() {
+  const per = new Map(); const bottles = new Map(); let alc = 0, fix = 0, nb = 0;
+  for (const it of S.list) {
+    const p = BY_R.get(it.r); if (!p) continue;
+    const pct = it.pct ?? recPct(p, it.lvl);
+    const rc = recipe(it.ml, pct, S.fix);
+    const cur = per.get(it.r) || { p, ml: 0, lote: 0 };
+    cur.ml += rc.e * it.n; cur.lote += it.ml * it.n; per.set(it.r, cur);
+    alc += rc.a * it.n; fix += rc.f * it.n; nb += it.n;
+    bottles.set(it.ml, (bottles.get(it.ml) || 0) + it.n);
+  }
+  return { per, alc, fix, nb, bottles };
+}
+const ozBuy = mlv => Math.max(1, Math.ceil(mlv * 1.05 / OZ_ML));
+const litersBuy = mlv => Math.max(0.5, Math.ceil(mlv * 1.05 / 500) / 2);
+function bottleText(bottles) { return [...bottles.entries()].sort((a, b) => a[0] - b[0]).map(([s, n]) => `${n} de ${s} ml`).join(', '); }
+
+function renderList() {
+  $('#listCount').textContent = S.example ? 0 : S.list.reduce((a, it) => a + it.n, 0);
+  $('#fixList').innerHTML = Object.entries(FIXES).map(([k, v]) => `<option value="${k}"${S.fix === k ? ' selected' : ''}>${v.label} (${nf1.format(v.pct)} %)</option>`).join('');
+  $('#listBanner').innerHTML = S.example ? '<div class="banner"><b>Lista de ejemplo.</b> Así se ve armada. Cuando agregues tu primer perfume desde la pestaña Perfumes, se reemplaza por la tuya.</div>' : '';
+  const items = $('#items');
+  if (!S.list.length) {
+    items.innerHTML = '<div class="empty">Tu lista está vacía. Andá a <a href="#perfumes">Perfumes</a>, elegí uno y tocá "Agregar a mi lista".</div>';
+  } else {
+    items.innerHTML = S.list.map((it, i) => {
+      const p = BY_R.get(it.r); const pct = it.pct ?? recPct(p, it.lvl); const rc = recipe(it.ml, pct, S.fix);
+      return `<div class="item" data-i="${i}">
+        <div class="nm"><strong>${esc(p.n)}</strong><span>${esc(p.b)} · ${pct} % · ${ml(rc.e)} ml de esencia por frasco</span></div>
+        <div class="ctrl">
+          <select data-k="ml" aria-label="Tamaño">${[...new Set([...SIZES, it.ml])].sort((a, b) => a - b).map(s => `<option value="${s}"${s === it.ml ? ' selected' : ''}>${s} ml</option>`).join('')}</select>
+          <select data-k="lvl" aria-label="Intensidad">${Object.entries(LEVELS).map(([k, v]) => `<option value="${k}"${k === it.lvl ? ' selected' : ''}>${v.label}</option>`).join('')}</select>
+          <span class="qty"><button type="button" data-d="-1" aria-label="Uno menos">−</button><input type="number" min="1" max="99" value="${it.n}" data-k="n" aria-label="Cantidad"><button type="button" data-d="1" aria-label="Uno más">+</button></span>
+          <button type="button" class="x" data-del aria-label="Quitar ${esc(p.n)}">×</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  const t = totals();
+  if (!S.list.length) { $('#buy').innerHTML = '<p class="hint">Cuando agregues perfumes, acá aparece cuánto comprar de cada cosa.</p>'; }
+  else {
+    const rows = [];
+    rows.push('<h3>Esencias</h3><ul class="buy">' + [...t.per.values()].map(x => `<li><span>Esencia tipo <b>${esc(x.p.n)}</b> – ${esc(x.p.b)}</span><span class="n">${ml(x.ml)} ml → ${ozBuy(x.ml)} oz</span><small>Para ${ml(x.lote)} ml de perfume. Las onzas incluyen 5 % extra por lo que se pierde en pipetas y filtro.</small></li>`).join('') + '</ul>');
+    rows.push('<h3>Insumos</h3><ul class="buy">' +
+      `<li><span>Alcohol etílico de perfumería 96°</span><span class="n">${ml(t.alc)} ml → ${nf1.format(litersBuy(t.alc))} L</span></li>` +
+      (t.fix ? `<li><span>${esc(FIXES[S.fix].label)}</span><span class="n">${ml(t.fix)} ml</span>${t.fix < 10 ? `<small>Son unas ${nf0.format(t.fix * DROPS_ML)} gotas en total.</small>` : ''}</li>` : `<li><span>Fijador</span><span class="n">no hace falta</span><small>Tu alcohol ya lo trae.</small></li>`) +
+      `<li><span>Frascos atomizadores de vidrio</span><span class="n">${t.nb}</span><small>${bottleText(t.bottles)}</small></li>` +
+      `<li><span>Frascos ámbar con tapa para el reposo</span><span class="n">${t.per.size}</span><small>Uno por perfume, que le entre el lote completo.</small></li>` +
+      `<li><span>Filtros de café</span><span class="n">${t.per.size + 2}</span><small>Uno por perfume y dos de repuesto.</small></li>` +
+      `<li><span>Pipetas o jeringas</span><span class="n">${t.per.size}</span><small>Una por esencia, para no mezclar olores.</small></li>` +
+      `<li><span>Etiquetas</span><span class="n">${t.nb + t.per.size}</span></li></ul>`);
+    $('#buy').innerHTML = rows.join('');
+  }
+  $('#tools').innerHTML = TOOLS.map(([k, n, why]) => `<li><label><input type="checkbox" data-tool="${k}"${S.owned[k] ? ' checked' : ''}><span>${esc(n)}<small>${esc(why)}</small></span></label></li>`).join('');
+  $('#clearList').textContent = S.confirmClear ? 'Tocá otra vez para vaciar' : 'Vaciar lista';
+  $('#clearList').disabled = !S.list.length;
+}
+function listText() {
+  const t = totals();
+  const lines = ['LISTA DE COMPRAS – Recetario de Réplicas', ''];
+  lines.push('Voy a preparar:');
+  S.list.forEach(it => { const p = BY_R.get(it.r); const pct = it.pct ?? recPct(p, it.lvl); const rc = recipe(it.ml, pct, S.fix);
+    lines.push(`- ${it.n} × ${p.n} (${p.b}) de ${it.ml} ml al ${pct} %: ${ml(rc.e)} ml esencia + ${ml(rc.f)} ml fijador + ${ml(rc.a)} ml alcohol`); });
+  lines.push('', 'Comprar:');
+  t.per.forEach(x => lines.push(`- Esencia tipo ${x.p.n} – ${x.p.b}: ${ml(x.ml)} ml (${ozBuy(x.ml)} oz)`));
+  lines.push(`- Alcohol etílico de perfumería 96°: ${ml(t.alc)} ml (${nf1.format(litersBuy(t.alc))} L)`);
+  if (t.fix) lines.push(`- ${FIXES[S.fix].label}: ${ml(t.fix)} ml`);
+  lines.push(`- Frascos atomizadores: ${bottleText(t.bottles)}`);
+  lines.push(`- Frascos ámbar para reposo: ${t.per.size}`, `- Filtros de café: ${t.per.size + 2}`, `- Pipetas o jeringas: ${t.per.size}`, `- Etiquetas: ${t.nb + t.per.size}`);
+  const missing = TOOLS.filter(([k]) => !S.owned[k]).map(([, n]) => n);
+  if (missing.length) { lines.push('', 'Instrumentos que me faltan:'); missing.forEach(n => lines.push(`- ${n}`)); }
+  return lines.join('\n');
+}
+
+/* ---------- guía ---------- */
+function renderGuide() {
+  $('#famTable').innerHTML = Object.entries(FAM).map(([k, f]) => `<tr><td><span class="chip ${k}">${f.label}</span></td><td class="n">${f.adj > 0 ? '+' : f.adj < 0 ? '−' : '±'}${Math.abs(f.adj)} puntos</td><td class="n">${f.days} días</td><td>${esc(f.why)}</td></tr>`).join('');
+  $('#instList').innerHTML = TOOLS.map(([, n, why]) => `<li><b>${esc(n)}.</b> ${esc(why)}</li>`).join('');
+  const r = recipe(100, 30, 'tienda');
+  $('#guideSteps').innerHTML = steps(r, 21, 30, null).map(s => `<li><span>${s}</span></li>`).join('');
+}
+
+/* ---------- navegación ---------- */
+const VIEWS = ['perfumes', 'lista', 'guia'];
+function route() {
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'perfumes';
+  VIEWS.forEach(x => { $('#v-' + x).hidden = x !== v; });
+  document.querySelectorAll('nav.tabs a').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  if (v === 'lista') renderList();
+  closeSheet();
+}
+const narrow = () => matchMedia('(max-width: 960px)').matches;
+function openSheet() { if (narrow()) { $('#sheet').classList.add('open'); document.body.classList.add('locked'); $('#sheet').scrollTop = 0; } }
+function closeSheet() { $('#sheet').classList.remove('open'); document.body.classList.remove('locked'); }
+
+/* ---------- eventos ---------- */
+$('#q').addEventListener('input', e => { S.q = e.target.value; S.shown = 50; renderResults(); });
+$('#fScope').addEventListener('change', e => { S.scope = +e.target.value; S.shown = 50; renderResults(); });
+$('#fGen').addEventListener('change', e => { S.gen = e.target.value; S.shown = 50; renderResults(); });
+$('#fFam').addEventListener('change', e => { S.fam = e.target.value; S.shown = 50; renderResults(); });
+$('#fSort').addEventListener('change', e => { S.sort = e.target.value; renderResults(); });
+$('#results').addEventListener('click', e => {
+  if (e.target.id === 'more') { S.shown += 50; renderResults(); return; }
+  if (e.target.id === 'goAll2') return goAll(e);
+  const row = e.target.closest('.row'); if (!row) return;
+  S.sel = +row.dataset.r; S.pct = null; S.qty = 1;
+  document.querySelectorAll('.row').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.r === S.sel)));
+  renderDetail(); openSheet();
+  if (!narrow()) $('#sheet').scrollTop = 0;
+});
+const goAll = e => { if (e.target.id === 'goAll' || e.target.id === 'goAll2') { S.scope = 1000; $('#fScope').value = '1000'; renderResults(); } };
+$('#metaLine').addEventListener('click', goAll);
+$('#detail').addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'closeSheet') return closeSheet();
+  if (t.id === 'copyAsk') { const p = BY_R.get(S.sel); return copyText(`Esencia tipo ${p.n} – ${p.b}`); }
+  if (t.dataset.size) { S.size = +t.dataset.size; saveSettings(); return renderDetail(); }
+  if (t.dataset.lvl) { S.lvl = t.dataset.lvl; S.pct = null; return renderDetail(); }
+  if (t.id === 'resetPct') { S.pct = null; return renderDetail(); }
+  if (t.dataset.q) { S.qty = Math.max(1, Math.min(99, S.qty + +t.dataset.q)); $('#qty').value = S.qty; return; }
+  if (t.id === 'addList') {
+    const p = BY_R.get(S.sel); const rec = recPct(p, S.lvl);
+    if (S.example) { S.list = []; S.example = false; }
+    const pct = S.pct !== null && S.pct !== rec ? S.pct : undefined;
+    const same = S.list.find(it => it.r === S.sel && it.ml === S.size && it.lvl === S.lvl && it.pct === pct);
+    if (same) same.n = Math.min(99, same.n + S.qty); else S.list.push(Object.assign({ r: S.sel, ml: S.size, n: S.qty, lvl: S.lvl }, pct !== undefined ? { pct } : {}));
+    saveList(); renderList(); toast(`Agregado: ${S.qty} × ${p.n} de ${S.size} ml`);
+  }
+});
+$('#detail').addEventListener('input', e => {
+  if (e.target.id === 'pctRange') {
+    S.pct = +e.target.value; $('#pctOut').textContent = S.pct + ' %';
+    refreshRecipe();
+  }
+  if (e.target.id === 'qty') { const v = parseInt(e.target.value, 10); if (v >= 1 && v <= 99) S.qty = v; }
+});
+$('#detail').addEventListener('change', e => {
+  if (e.target.id === 'fixSel') { S.fix = e.target.value; saveSettings(); renderDetail(); }
+  if (e.target.id === 'sizeCustom') { const v = Math.round(+e.target.value); if (v >= 5 && v <= 1000) { S.size = v; saveSettings(); renderDetail(); } }
+});
+$('#fixList').addEventListener('change', e => { S.fix = e.target.value; saveSettings(); renderList(); renderDetail(); });
+$('#items').addEventListener('click', e => {
+  const item = e.target.closest('.item'); if (!item) return; const it = S.list[+item.dataset.i];
+  const b = e.target.closest('button'); if (!b) return;
+  if (S.example) S.example = false;
+  if (b.hasAttribute('data-del')) S.list.splice(+item.dataset.i, 1);
+  else if (b.dataset.d) it.n = Math.max(1, Math.min(99, it.n + +b.dataset.d));
+  saveList(); renderList();
+});
+$('#items').addEventListener('change', e => {
+  const item = e.target.closest('.item'); if (!item) return; const it = S.list[+item.dataset.i];
+  const k = e.target.dataset.k; if (!k) return;
+  if (S.example) S.example = false;
+  if (k === 'ml') it.ml = +e.target.value;
+  if (k === 'lvl') { it.lvl = e.target.value; delete it.pct; }
+  if (k === 'n') { const v = parseInt(e.target.value, 10); if (v >= 1 && v <= 99) it.n = v; }
+  saveList(); renderList();
+});
+$('#tools').addEventListener('change', e => { const k = e.target.dataset.tool; if (!k) return; S.owned[k] = e.target.checked; store.set('recetario.instrumentos.v1', S.owned); });
+$('#copyList').addEventListener('click', () => { $('#copyFallback').innerHTML = ''; copyText(listText(), $('#copyFallback')); });
+$('#clearList').addEventListener('click', () => {
+  if (!S.confirmClear) { S.confirmClear = true; renderList(); setTimeout(() => { S.confirmClear = false; renderList(); }, 4000); return; }
+  S.confirmClear = false; S.list = []; S.example = false; saveList(); renderList(); toast('Lista vaciada');
+});
+document.querySelector('.toc').addEventListener('click', e => { const a = e.target.closest('a[data-go]'); if (!a) return; e.preventDefault(); document.getElementById(a.dataset.go).scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+addEventListener('hashchange', route);
+addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+renderResults(); renderDetail(); renderList(); renderGuide(); route();
+</script>
+</body>
+</html>
